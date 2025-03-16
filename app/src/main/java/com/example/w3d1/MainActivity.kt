@@ -36,73 +36,74 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController: NavHostController = rememberNavController()
-            var title by remember { mutableStateOf("First Screen") }
+            var title by remember { mutableStateOf("First Screen") } // Default title
 
             W3D1Theme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    topBar = { DynamicTopAppBar(title, navController) }
+                    topBar = { DynamicTopAppBar(title, navController) } // Pass title dynamically
                 ) { innerPadding ->
                     NavigationHost(innerPadding, navController, setTitle = { newTitle ->
-                        title = newTitle
+                        title = newTitle // Update title dynamically
                     })
                 }
             }
         }
     }
+}
 
 
-    @Composable
-    fun NavigationHost(
-        innerPadding: PaddingValues,
-        navController: NavHostController,
-        setTitle: (String) -> Unit
+@Composable
+fun NavigationHost(
+    innerPadding: PaddingValues,
+    navController: NavHostController,
+    setTitle: (String) -> Unit
+) {
+    NavHost(
+        navController = navController,
+        startDestination = "firstScreen",
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
     ) {
-        NavHost(
-            navController = navController,
-            startDestination = "firstScreen", // Define a string route
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            composable("firstScreen") {
-                setTitle("firstScreen")
-                FisrtScreen(navController)
-            }
-
-            composable("secondScreen") {
-                setTitle("secondScreen")
-                SecondScreen(navController)
-            }
+        composable("firstScreen") {
+            setTitle("First Screen") // Update title
+            FisrtScreen(navController)
+        }
+        composable("secondScreen") {
+            setTitle("Second Screen") // Update title
+            SecondScreen(navController)
         }
     }
+}
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun DynamicTopAppBar(title: String, navController: NavHostController) {
-        TopAppBar(
-            title = { Text(text = title) },
-            navigationIcon = {
-                if (navController.previousBackStackEntry != null) { // Show back button only if needed
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                }
-            },
-            actions = {
-                IconButton(onClick = {}) {
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DynamicTopAppBar(title: String, navController: NavHostController) {
+    TopAppBar(
+        title = { Text(text = title) },
+        navigationIcon = {
+            if (navController.previousBackStackEntry != null) { // Show back button only if needed
+                IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
-                        imageVector = Icons.Filled.MoreVert,
-                        contentDescription = "More Options"
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
                     )
                 }
             }
-        )
-    }
+        },
+        actions = {
+            IconButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = "More Options"
+                )
+            }
+        }
+    )
 }
+
 
 
 

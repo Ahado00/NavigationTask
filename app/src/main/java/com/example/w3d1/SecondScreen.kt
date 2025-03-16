@@ -23,9 +23,7 @@ fun SecondScreen(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Welcome to Second Screen")
-        Button(onClick = {
-            navController.popBackStack() // Go back to the first screen
-        }) {
+        Button(onClick = { navController.popBackStack() }) {
             Text(text = "Go Back")
         }
     }

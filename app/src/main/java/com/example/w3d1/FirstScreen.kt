@@ -22,9 +22,7 @@ fun FisrtScreen(navController: NavHostController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(onClick = {
-            navController.navigate("secondScreen") // Navigate to SecondScreen
-        }) {
+        Button(onClick = { navController.navigate("secondScreen") }) {
             Text(text = "Go To Second Screen")
         }
     }
