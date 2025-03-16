@@ -28,6 +28,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.w3d1.ui.theme.W3D1Theme
 
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -36,16 +43,21 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController: NavHostController = rememberNavController()
-            var title by remember { mutableStateOf("First Screen") }
+            var title by remember { mutableStateOf("Home") }
+            var currentScreen by remember { mutableStateOf("firstScreen") }
 
             W3D1Theme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    topBar = { DynamicTopAppBar(title, navController) }
+                    topBar = { DynamicTopAppBar(title, navController) },
+                    bottomBar = { BottomNavigationBar(navController, currentScreen) } // Add BottomNavigationBar
                 ) { innerPadding ->
-                    NavigationHost(innerPadding, navController, setTitle = { newTitle ->
-                        title = newTitle
-                    })
+                    NavigationHost(
+                        innerPadding,
+                        navController,
+                        setTitle = { newTitle -> title = newTitle },
+                        setCurrentScreen = { screen -> currentScreen = screen }
+                    )
                 }
             }
         }
@@ -54,11 +66,7 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun NavigationHost(
-    innerPadding: PaddingValues,
-    navController: NavHostController,
-    setTitle: (String) -> Unit
-) {
+fun NavigationHost(innerPadding: PaddingValues, navController: NavHostController, setTitle: (String) -> Unit, setCurrentScreen: (String) -> Unit) {
     NavHost(
         navController = navController,
         startDestination = "firstScreen",
@@ -67,15 +75,18 @@ fun NavigationHost(
             .padding(innerPadding)
     ) {
         composable("firstScreen") {
-            setTitle("First Screen")
+            setTitle("Home")
+            setCurrentScreen("firstScreen")
             FisrtScreen(navController)
         }
         composable("secondScreen") {
-            setTitle("Second Screen")
+            setTitle("Profile")
+            setCurrentScreen("secondScreen")
             SecondScreen(navController)
         }
         composable("thirdScreen") {
-            setTitle("Third Screen")
+            setTitle("Settings")
+            setCurrentScreen("thirdScreen")
             ThirdScreen(navController)
         }
     }
@@ -115,5 +126,33 @@ fun DynamicTopAppBar(title: String, navController: NavHostController) {
 
 
 
+@Composable
+fun BottomNavigationBar(navController: NavHostController, currentScreen: String) {
+    val items = listOf(
+        BottomNavItem("firstScreen", "Home", Icons.Filled.Home),
+        BottomNavItem("secondScreen", "Profile", Icons.Filled.Person),
+        BottomNavItem("thirdScreen", "Settings", Icons.Filled.Settings)
+    )
 
+    NavigationBar {
+        items.forEach { item ->
+            NavigationBarItem(
+                icon = { Icon(imageVector = item.icon, contentDescription = item.label) },
+                label = { Text(item.label) },
+                selected = currentScreen == item.route,
+                onClick = {
+                    if (currentScreen != item.route) {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                }
+            )
+        }
+    }
+}
+
+data class BottomNavItem(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 

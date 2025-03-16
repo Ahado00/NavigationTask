@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,14 +21,6 @@ fun SecondScreen(navController: NavHostController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Welcome to Second Screen")
-
-        Button(onClick = { navController.navigate("thirdScreen") }) {
-            Text(text = "Go To Third Screen")
-        }
-
-        Button(onClick = { navController.popBackStack() }) {
-            Text(text = "Go Back")
-        }
+        Text(text = "Welcome to Profile Screen")
     }
 }
