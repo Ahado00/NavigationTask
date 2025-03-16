@@ -36,15 +36,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController: NavHostController = rememberNavController()
-            var title by remember { mutableStateOf("First Screen") } // Default title
+            var title by remember { mutableStateOf("First Screen") }
 
             W3D1Theme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    topBar = { DynamicTopAppBar(title, navController) } // Pass title dynamically
+                    topBar = { DynamicTopAppBar(title, navController) }
                 ) { innerPadding ->
                     NavigationHost(innerPadding, navController, setTitle = { newTitle ->
-                        title = newTitle // Update title dynamically
+                        title = newTitle
                     })
                 }
             }
@@ -67,12 +67,16 @@ fun NavigationHost(
             .padding(innerPadding)
     ) {
         composable("firstScreen") {
-            setTitle("First Screen") // Update title
+            setTitle("First Screen")
             FisrtScreen(navController)
         }
         composable("secondScreen") {
-            setTitle("Second Screen") // Update title
+            setTitle("Second Screen")
             SecondScreen(navController)
+        }
+        composable("thirdScreen") {
+            setTitle("Third Screen")
+            ThirdScreen(navController)
         }
     }
 }
@@ -81,10 +85,14 @@ fun NavigationHost(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DynamicTopAppBar(title: String, navController: NavHostController) {
+
+    val currentBackStackEntry = navController.currentBackStackEntry
+    val showBackButton = currentBackStackEntry?.destination?.route != "firstScreen"
+
     TopAppBar(
         title = { Text(text = title) },
         navigationIcon = {
-            if (navController.previousBackStackEntry != null) { // Show back button only if needed
+            if (showBackButton) { // Show back button if not on first screen
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,

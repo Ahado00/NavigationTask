@@ -14,20 +14,15 @@ import androidx.navigation.NavHostController
 
 
 @Composable
-fun SecondScreen(navController: NavHostController) {
+fun ThirdScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
-            .background(Color.LightGray)
+            .background(Color.White)
             .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Welcome to Second Screen")
-
-        Button(onClick = { navController.navigate("thirdScreen") }) {
-            Text(text = "Go To Third Screen")
-        }
-
+        Text(text = "Welcome to Third Screen")
         Button(onClick = { navController.popBackStack() }) {
             Text(text = "Go Back")
         }
