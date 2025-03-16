@@ -4,12 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Settings
 
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.ui.unit.dp
 
 
 class MainActivity : ComponentActivity() {
@@ -45,12 +46,13 @@ class MainActivity : ComponentActivity() {
             val navController: NavHostController = rememberNavController()
             var title by remember { mutableStateOf("Home") }
             var currentScreen by remember { mutableStateOf("firstScreen") }
+            var onSaveClick by remember { mutableStateOf<(() -> Unit)?>(null) }
 
             W3D1Theme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    topBar = { DynamicTopAppBar(title, navController) },
-                    bottomBar = { BottomNavigationBar(navController, currentScreen) } // Add BottomNavigationBar
+                    topBar = { DynamicTopAppBar(title, navController, onSaveClick) },
+                    bottomBar = { BottomNavigationBar(navController, currentScreen) }
                 ) { innerPadding ->
                     NavigationHost(
                         innerPadding,
@@ -66,7 +68,12 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun NavigationHost(innerPadding: PaddingValues, navController: NavHostController, setTitle: (String) -> Unit, setCurrentScreen: (String) -> Unit) {
+fun NavigationHost(
+    innerPadding: PaddingValues,
+    navController: NavHostController,
+    setTitle: (String) -> Unit,
+    setCurrentScreen: (String) -> Unit
+) {
     NavHost(
         navController = navController,
         startDestination = "firstScreen",
@@ -77,12 +84,17 @@ fun NavigationHost(innerPadding: PaddingValues, navController: NavHostController
         composable("firstScreen") {
             setTitle("Home")
             setCurrentScreen("firstScreen")
-            FisrtScreen(navController)
+            FisrtScreen(navController) { text ->
+                navController.currentBackStackEntry?.savedStateHandle?.set("savedText", text)
+                navController.navigate("secondScreen")
+            }
         }
         composable("secondScreen") {
             setTitle("Profile")
             setCurrentScreen("secondScreen")
-            SecondScreen(navController)
+            val savedText =
+                navController.previousBackStackEntry?.savedStateHandle?.get<String>("savedText")
+            SecondScreen(navController, savedText)
         }
         composable("thirdScreen") {
             setTitle("Settings")
@@ -95,15 +107,14 @@ fun NavigationHost(innerPadding: PaddingValues, navController: NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DynamicTopAppBar(title: String, navController: NavHostController) {
-
+fun DynamicTopAppBar(title: String, navController: NavHostController, onSaveClick: (() -> Unit)?) {
     val currentBackStackEntry = navController.currentBackStackEntry
     val showBackButton = currentBackStackEntry?.destination?.route != "firstScreen"
 
     TopAppBar(
         title = { Text(text = title) },
         navigationIcon = {
-            if (showBackButton) { // Show back button if not on first screen
+            if (showBackButton) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -113,17 +124,17 @@ fun DynamicTopAppBar(title: String, navController: NavHostController) {
             }
         },
         actions = {
-            IconButton(onClick = {}) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = "More Options"
+            if (onSaveClick != null) {
+                Text(
+                    text = "Save",
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .clickable { onSaveClick() }
                 )
             }
         }
     )
 }
-
-
 
 
 @Composable
@@ -154,5 +165,9 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
     }
 }
 
-data class BottomNavItem(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+data class BottomNavItem(
+    val route: String,
+    val label: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+)
 
